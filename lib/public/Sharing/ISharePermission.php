@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+declare(strict_types=1);
+
+namespace OCP\Sharing;
+
+use OCA\Sharing\ResponseDefinitions;
+
+// TODO: Rename to ISharePermissionType
+/**
+ * Describes a permission the recipient has on the source through the share.
+ *
+ * @psalm-import-type SharingPermission from ResponseDefinitions
+ */
+interface ISharePermission {
+	/**
+	 * Returns a user friendly display name for this permission.
+	 *
+	 * @return non-empty-string
+	 */
+	public function getDisplayName(): string;
+
+	/**
+	 * Returns the category the permission belongs to.
+	 * If no category matches, it may return null.
+	 *
+	 * @return ?class-string<ISharePermissionCategory>
+	 */
+	public function getCategory(): ?string;
+
+	/**
+	 * Whether this permission is enabled by default or not.
+	 *
+	 * If null is returned and this permission has a category, the default from {@see ISharePermissionCategory::getDefault()} is used.
+	 * If null is returned and this permission has no category, it will default to false.
+	 */
+	public function getDefault(): ?bool;
+}
