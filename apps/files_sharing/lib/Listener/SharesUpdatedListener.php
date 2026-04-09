@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace OCA\Files_Sharing\Listener;
 
 use OCA\Files_Sharing\Event\UserShareAccessUpdatedEvent;
+use OCA\Files_Sharing\External\Manager as ExternalManager;
 use OCA\Files_Sharing\MountProvider;
 use OCA\Files_Sharing\ShareTargetValidator;
 use OCP\EventDispatcher\Event;
@@ -23,11 +24,12 @@ use OCP\Share\Events\BeforeShareDeletedEvent;
 use OCP\Share\Events\ShareCreatedEvent;
 use OCP\Share\Events\ShareTransferredEvent;
 use OCP\Share\IManager;
+use OCP\User\Events\UserDeletedEvent;
 
 /**
  * Listen to various events that can change what shares a user has access to
  *
- * @template-implements IEventListener<UserAddedEvent|UserRemovedEvent|ShareCreatedEvent|ShareTransferredEvent|BeforeShareDeletedEvent|UserShareAccessUpdatedEvent>
+ * @template-implements IEventListener<UserAddedEvent|UserRemovedEvent|ShareCreatedEvent|ShareTransferredEvent|BeforeShareDeletedEvent|UserShareAccessUpdatedEvent|UserDeletedEvent>
  */
 class SharesUpdatedListener implements IEventListener {
 	private array $inUpdate = [];
@@ -38,6 +40,7 @@ class SharesUpdatedListener implements IEventListener {
 		private readonly MountProvider $shareMountProvider,
 		private readonly ShareTargetValidator $shareTargetValidator,
 		private readonly IStorageFactory $storageFactory,
+		private readonly ExternalManager $externalManager,
 	) {
 	}
 	public function handle(Event $event): void {
@@ -61,6 +64,10 @@ class SharesUpdatedListener implements IEventListener {
 			foreach ($this->shareManager->getUsersForShare($event->getShare()) as $user) {
 				$this->updateForUser($user, false, [$event->getShare()]);
 			}
+		}
+
+		if ($event instanceof UserDeletedEvent) {
+			$this->deleteUser($event);
 		}
 	}
 
@@ -96,5 +103,9 @@ class SharesUpdatedListener implements IEventListener {
 		}
 
 		unset($this->inUpdate[$user->getUID()]);
+	}
+
+	public function deleteUser(UserDeletedEvent $event): void {
+		$this->externalManager->removeUserShares($event->getUser());
 	}
 }

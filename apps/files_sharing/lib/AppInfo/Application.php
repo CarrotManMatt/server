@@ -121,6 +121,8 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(UserRemovedEvent::class, SharesUpdatedListener::class);
 		$context->registerEventListener(UserShareAccessUpdatedEvent::class, SharesUpdatedListener::class);
 
+		$context->registerEventListener(UserDeletedEvent::class, SharesUpdatedListener::class);
+
 		$context->registerConfigLexicon(ConfigLexicon::class);
 	}
 
