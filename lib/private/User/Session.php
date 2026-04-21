@@ -20,7 +20,6 @@ use OC\Hooks\PublicEmitter;
 use OC\Http\CookieHelper;
 use OC\Security\CSRF\CsrfTokenManager;
 use OC_User;
-use OC_Util;
 use OCA\DAV\Connector\Sabre\Auth;
 use OCP\AppFramework\Db\TTransactional;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -28,6 +27,8 @@ use OCP\Authentication\Exceptions\ExpiredTokenException;
 use OCP\Authentication\Exceptions\InvalidTokenException;
 use OCP\EventDispatcher\GenericEvent;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\IRootFolder;
+use OCP\Files\ISetupManager;
 use OCP\Files\NotPermittedException;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -48,6 +49,7 @@ use OCP\User\Events\UserFirstTimeLoggedInEvent;
 use OCP\User\Events\UserLoggedInWithCookieEvent;
 use OCP\User\Events\UserLoggedOutEvent;
 use OCP\Util;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -67,8 +69,7 @@ use Psr\Log\LoggerInterface;
 class Session implements IUserSession, Emitter {
 	use TTransactional;
 
-	/** @var User $activeUser */
-	protected $activeUser;
+	protected ?User $activeUser = null;
 
 	public function __construct(
 		private Manager $manager,
@@ -80,6 +81,8 @@ class Session implements IUserSession, Emitter {
 		private ILockdownManager $lockdownManager,
 		private LoggerInterface $logger,
 		private IEventDispatcher $dispatcher,
+		private ContainerInterface $container,
+		private IRootFolder $rootFolder,
 	) {
 	}
 
@@ -516,24 +519,23 @@ class Session implements IUserSession, Emitter {
 		}
 
 		if ($firstTimeLogin) {
-			//we need to pass the user name, which may differ from login name
-			$user = $this->getUser()->getUID();
-			OC_Util::setupFS($user);
+			//we need to pass the username, which may differ from login name
+			$user = $this->getUser();
+			$this->container->get(ISetupManager::class)->setupForUser($user);
 
-			// TODO: lock necessary?
-			//trigger creation of user home and /files folder
-			$userFolder = \OC::$server->getUserFolder($user);
+			// trigger creation of user home and /files folder
+			$userFolder = $this->rootFolder->getUserFolder($user->getUID());
 
 			try {
 				// copy skeleton
-				\OC_Util::copySkeleton($user, $userFolder);
-			} catch (NotPermittedException $ex) {
+				\OC_Util::copySkeleton($user->getUID(), $userFolder);
+			} catch (NotPermittedException) {
 				// read only uses
 			}
 
 			// trigger any other initialization
-			Server::get(IEventDispatcher::class)->dispatch(IUser::class . '::firstLogin', new GenericEvent($this->getUser()));
-			Server::get(IEventDispatcher::class)->dispatchTyped(new UserFirstTimeLoggedInEvent($this->getUser()));
+			$this->dispatcher->dispatch(IUser::class . '::firstLogin', new GenericEvent($user));
+			$this->dispatcher->dispatchTyped(new UserFirstTimeLoggedInEvent($user));
 		}
 	}
 

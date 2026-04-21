@@ -63,6 +63,8 @@
 		<file name="status.php"/>
 		<file name="version.php"/>
 		<file name="tests/lib/TestCase.php"/>
+		<file name="tests/lib/Util/User/Dummy.php"/>
+		<file name="tests/lib/User/SessionTest.php"/>
 		<ignoreFiles>
 			<directory name="apps/**/tests"/>
 			<directory name="apps/**/composer"/>
@@ -172,6 +174,7 @@
 		<DeprecatedClass>
 			<errorLevel type="suppress">
 				<directory name="lib" />
+				<directory name="tests" />
 				<directory name="apps/*/tests" />
 			</errorLevel>
 		</DeprecatedClass>
