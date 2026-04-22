@@ -1201,17 +1201,6 @@
       <code><![CDATA[$this->fileIsEncrypted]]></code>
     </TypeDoesNotContainType>
   </file>
-  <file src="apps/files/lib/AppInfo/Application.php">
-    <DeprecatedInterface>
-      <code><![CDATA[$server]]></code>
-      <code><![CDATA[$server]]></code>
-    </DeprecatedInterface>
-    <DeprecatedMethod>
-      <code><![CDATA[Util::connectHook('\OCP\Config', 'js', '\OCA\Files\App', 'extendJsConfig')]]></code>
-      <code><![CDATA[getUserFolder]]></code>
-      <code><![CDATA[getUserFolder]]></code>
-    </DeprecatedMethod>
-  </file>
   <file src="apps/files/lib/BackgroundJob/ScanFiles.php">
     <DeprecatedClass>
       <code><![CDATA[\OC_Util::tearDownFS()]]></code>
@@ -2082,7 +2071,6 @@
   </file>
   <file src="apps/provisioning_api/lib/Middleware/ProvisioningApiMiddleware.php">
     <DeprecatedMethod>
-      <code><![CDATA[hasAnnotation]]></code>
       <code><![CDATA[hasAnnotation]]></code>
     </DeprecatedMethod>
     <InvalidReturnType>
