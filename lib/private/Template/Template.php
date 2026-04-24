@@ -41,7 +41,7 @@ class Template extends Base implements ITemplate {
 	) {
 		$theme = \OC_Util::getTheme();
 
-		$requestToken = ($registerCall ? Server::get(CsrfTokenManager::class)->getToken()->getEncryptedValue() : '');
+		$requestToken = $registerCall ? Server::get(CsrfTokenManager::class)->getToken()->getEncryptedValue() : '';
 		$cspNonce = Server::get(ContentSecurityPolicyNonceManager::class)->getNonce();
 
 		// fix translation when app is something like core/lostpassword
