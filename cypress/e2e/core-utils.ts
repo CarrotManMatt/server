@@ -89,3 +89,29 @@ export function beFullyInViewport($el: JQuery<HTMLElement>, expected = true) {
 export function notBeFullyInViewport($el: JQuery<HTMLElement>) {
 	return beFullyInViewport($el, false)
 }
+
+/**
+ * Handle the confirm password dialog (if needed)
+ *
+ * @param adminPassword The admin password for the dialog
+ */
+export function handlePasswordConfirmation(adminPassword = 'admin') {
+	const handleModal = (context: Cypress.Chainable) => {
+		return context.contains('.modal-container', 'Authentication required')
+			.if()
+			.within(() => {
+				cy.get('input[type="password"]')
+					.type(adminPassword)
+				cy.findByRole('button', { name: 'Confirm' })
+					.click()
+			})
+	}
+
+	return cy.get('body')
+		.if()
+		.then(() => handleModal(cy.get('body')))
+		.else()
+		// Handle if inside a cy.within
+		.root().closest('body')
+		.then(($body) => handleModal(cy.wrap($body)))
+}
