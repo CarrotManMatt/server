@@ -13,20 +13,19 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
-class Application extends App implements IBootstrap {
+final class Application extends App implements IBootstrap {
 	public const APP_ID = 'appstore';
 
-	/**
-	 * @param array $urlParams
-	 */
 	public function __construct(array $urlParams = []) {
 		parent::__construct(self::APP_ID, $urlParams);
 	}
 
+	#[\Override()]
 	public function register(IRegistrationContext $context): void {
 		$context->registerSearchProvider(AppSearch::class);
 	}
 
+	#[\Override()]
 	public function boot(IBootContext $context): void {
 	}
 }

@@ -117,7 +117,7 @@ abstract class Fetcher {
 	/**
 	 * Returns the array with the entries on the appstore server
 	 *
-	 * @param bool [$allowUnstable] Allow unstable releases
+	 * @param bool $allowUnstable - Allow unstable releases
 	 * @return array
 	 */
 	public function get($allowUnstable = false) {

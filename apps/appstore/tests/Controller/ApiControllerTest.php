@@ -27,16 +27,27 @@ use Test\TestCase;
 #[\PHPUnit\Framework\Attributes\Group('DB')]
 class ApiControllerTest extends TestCase {
 	private IRequest&MockObject $request;
+
 	private IConfig&MockObject $config;
+
 	private IAppConfig&MockObject $appConfig;
+
 	private AppManager&MockObject $appManager;
+
 	private DependencyAnalyzer&MockObject $dependencyAnalyzer;
+
 	private CategoryFetcher&MockObject $categoryFetcher;
+
 	private AppFetcher&MockObject $appFetcher;
+
 	private IFactory&MockObject $l10nFactory;
+
 	private BundleFetcher&MockObject $bundleFetcher;
+
 	private Installer&MockObject $installer;
+
 	private IRegistry&MockObject $subscriptionRegistry;
+
 	private LoggerInterface&MockObject $logger;
 
 	private ApiController $apiController;
