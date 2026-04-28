@@ -44,8 +44,8 @@ class AppSearch implements IProvider {
 		$entries = $this->navigationManager->getAll('all');
 
 		$searchTitle = $this->l->t('Apps');
-		$term = $query->getFilter('term')?->get();
-		if (empty($term)) {
+		$term = (string)$query->getFilter('term')?->get();
+		if ($term === '') {
 			return SearchResult::complete($searchTitle, []);
 		}
 

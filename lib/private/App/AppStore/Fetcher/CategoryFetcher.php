@@ -36,4 +36,18 @@ class CategoryFetcher extends Fetcher {
 		$this->fileName = 'categories.json';
 		$this->endpointName = 'categories.json';
 	}
+
+	/**
+	 * Get the categories from the app store server.
+	 * The categories are listed as an array containing the id and the translations for the category.
+	 * The key of the translations array is the language code and the value is an array containing the name and description of the category.
+	 *
+	 * @param bool $allowUnstable - Allow unstable releases
+	 * @return list<array{ id: string, translations: array<string, array{ name: string, description: string }> }>
+	 */
+	#[\Override()]
+	public function get($allowUnstable = false): array {
+		/** @var list<array{ id: string, translations: array<string, array{ name: string, description: string }> }> */
+		return parent::get($allowUnstable);
+	}
 }
