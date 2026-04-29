@@ -7,7 +7,7 @@ import axios from '@nextcloud/axios'
 import { showError, showInfo } from '@nextcloud/dialogs'
 import { loadState } from '@nextcloud/initial-state'
 import { PwdConfirmationMode } from '@nextcloud/password-confirmation'
-import { generateUrl } from '@nextcloud/router'
+import { generateOcsUrl, generateUrl } from '@nextcloud/router'
 import Vue from 'vue'
 import logger from '../utils/logger.ts'
 import api from './api.js'
@@ -196,7 +196,8 @@ const actions = {
 			}
 		})
 
-		return api.post(generateUrl('settings/apps/enable'), { appIds: apps, groups }, { confirmPassword: PwdConfirmationMode.Strict })
+		const url = generateOcsUrl('apps/appstore/api/v1/enable')
+		return api.post(url, { appIds: apps, groups }, { confirmPassword: PwdConfirmationMode.Strict })
 			.then((response) => {
 				context.commit('stopLoading', apps)
 				context.commit('stopLoading', 'install')
@@ -268,7 +269,8 @@ const actions = {
 		return api.requireAdmin().then(() => {
 			context.commit('startLoading', apps)
 			context.commit('startLoading', 'install')
-			return api.post(generateUrl('settings/apps/force'), { appId })
+			const url = generateOcsUrl('apps/appstore/api/v1/force')
+			return api.post(url, { appId })
 				.then(() => {
 					context.commit('setInstallState', { appId, canInstall: true })
 				})
@@ -296,24 +298,28 @@ const actions = {
 		}
 		return api.requireAdmin().then(() => {
 			context.commit('startLoading', apps)
-			return api.post(generateUrl('settings/apps/disable'), { appIds: apps })
-				.then(() => {
-					context.commit('stopLoading', apps)
-					apps.forEach((_appId) => {
-						context.commit('disableApp', _appId)
+			const url = generateOcsUrl('apps/appstore/api/v1/disable')
+			return Promise.all(apps.map((appId) => {
+				return api.post(url, { appId })
+					.then(() => {
+						context.commit('stopLoading', apps)
+						apps.forEach((_appId) => {
+							context.commit('disableApp', _appId)
+						})
+						return true
 					})
-					return true
-				})
-				.catch((error) => {
-					context.commit('stopLoading', apps)
-					context.commit('APPS_API_FAILURE', { appId, error })
-				})
+					.catch((error) => {
+						context.commit('stopLoading', apps)
+						context.commit('APPS_API_FAILURE', { appId, error })
+					})
+			}))
 		}).catch((error) => context.commit('API_FAILURE', { appId, error }))
 	},
 	uninstallApp(context, { appId }) {
 		return api.requireAdmin().then(() => {
 			context.commit('startLoading', appId)
-			return api.get(generateUrl(`settings/apps/uninstall/${appId}`))
+			const url = generateOcsUrl('apps/appstore/api/v1/uninstall')
+			return api.post(url, { appId })
 				.then(() => {
 					context.commit('stopLoading', appId)
 					context.commit('uninstallApp', appId)
@@ -330,7 +336,8 @@ const actions = {
 		return api.requireAdmin().then(() => {
 			context.commit('startLoading', appId)
 			context.commit('startLoading', 'install')
-			return api.get(generateUrl(`settings/apps/update/${appId}`))
+			const url = generateOcsUrl('apps/appstore/api/v1/update')
+			return api.post(url, { appId })
 				.then(() => {
 					context.commit('stopLoading', 'install')
 					context.commit('stopLoading', appId)
@@ -347,9 +354,11 @@ const actions = {
 
 	getAllApps(context) {
 		context.commit('startLoading', 'list')
-		return api.get(generateUrl('settings/apps/list'))
+		const url = generateOcsUrl('apps/appstore/api/v1/apps')
+		return api.get(url)
 			.then((response) => {
-				context.commit('setAllApps', response.data.apps)
+				const apps = response.data.ocs.data
+				context.commit('setAllApps', apps)
 				context.commit('stopLoading', 'list')
 				return true
 			})
@@ -360,9 +369,9 @@ const actions = {
 		if (shouldRefetchCategories || !context.state.gettingCategoriesPromise) {
 			context.commit('startLoading', 'categories')
 			try {
-				const categoriesPromise = api.get(generateUrl('settings/apps/categories'))
+				const categoriesPromise = api.get(generateOcsUrl('apps/appstore/api/v1/apps/categories'))
 				context.commit('updateCategories', categoriesPromise)
-				const categoriesPromiseResponse = await categoriesPromise
+				const categoriesPromiseResponse = (await categoriesPromise).data.ocs
 				if (categoriesPromiseResponse.data.length > 0) {
 					context.commit('appendCategories', categoriesPromiseResponse.data)
 					context.commit('stopLoading', 'categories')

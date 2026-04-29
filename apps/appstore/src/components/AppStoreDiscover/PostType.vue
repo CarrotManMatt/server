@@ -144,7 +144,7 @@ export default defineComponent({
 		 *
 		 * @param url The URL to resolve
 		 */
-		const generatePrivacyUrl = (url: string) => url.startsWith('/') ? url : generateUrl('/settings/api/apps/media?fileName={fileName}', { fileName: url })
+		const generatePrivacyUrl = (url: string) => url.startsWith('/') ? url : generateUrl('/apps/appstore/api/v1/discover/media?fileName={fileName}', { fileName: url })
 
 		const mediaElement = ref<HTMLVideoElement | HTMLPictureElement>()
 		const mediaIsVisible = useElementVisibility(mediaElement, { threshold: 0.3 })

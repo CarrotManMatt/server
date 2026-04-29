@@ -42,8 +42,8 @@ import { defineAsyncComponent, defineComponent, onBeforeMount, ref } from 'vue'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import logger from '../../utils/logger.ts'
 import { filterElements, parseApiResponse } from '../../utils/appDiscoverParser.ts'
+import logger from '../../utils/logger.ts'
 
 const PostType = defineAsyncComponent(() => import('./PostType.vue'))
 const CarouselType = defineAsyncComponent(() => import('./CarouselType.vue'))
@@ -70,7 +70,7 @@ function shuffleArray<T>(array: T[]): T[] {
  */
 onBeforeMount(async () => {
 	try {
-		const { data } = await axios.get<Record<string, unknown>[]>(generateUrl('/settings/api/apps/discover'))
+		const { data } = await axios.get<Record<string, unknown>[]>(generateUrl('/apps/appstore/api/v1/discover'))
 		if (data.length === 0) {
 			logger.info('No app discover elements available (empty response)')
 			hasError.value = true
